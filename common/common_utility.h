@@ -1,6 +1,8 @@
 #ifndef COMMON_UTILITY_H
 #define COMMON_UTILITY_H
 
+#include <memory>
+
 #include <QString>
 #include <QDateTime>
 
@@ -36,6 +38,10 @@ QString getCode(const QString &instrumentID);
 bool parseOptionID(const QString &optionID, QString &futureID, OPTION_TYPE &type, int &exercisePrice);
 QString makeOptionID(const QString &futureID, const OPTION_TYPE type, const int exercisePrice);
 bool isOption(const QString &instrumentID);
+
+class QSettings;
+class QObject;
+std::unique_ptr<QSettings> getSettingsSmart(const QString &organization, const QString &name, QObject *parent = nullptr);
 
 template<class T>
 static inline bool isWithinRange(const T &t, const T &rangeStart, const T &rangeEnd)
@@ -74,7 +80,7 @@ const QString DY[] = {"a",  "b",  "m",  "y",  "p",  "j",  "jm", "i"};
 // 郑州商品交易所
 const QString ZZ[] = {"jr", "lr", "pm", "ri", "rs", "sf", "sm", "wh"};
 // 郑州商品交易所 (夜盘)
-const QString ZY[] = {"cf", "fg", "ma", "oi", "rm", "sr", "ta", "zc", "tc"};	// zc原来为tc
+const QString ZY[] = {"cf", "cy", "fg", "ma", "oi", "rm", "sr", "ta", "zc", "tc"};	// zc原来为tc
 // 中金所
 const QString ZJ[] = {"ic", "if", "ih", "t",  "tf"};
 
