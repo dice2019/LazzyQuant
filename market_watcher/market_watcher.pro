@@ -44,3 +44,25 @@ INCLUDEPATH += ../ctp/$$CTP_FOLDER_PREFIX$$CTP_FOLDER_SUFFIX/
 
 unix:LIBS += $$PWD/../ctp/$$CTP_FOLDER_PREFIX$$CTP_FOLDER_SUFFIX/thostmduserapi.so
 win32:LIBS += $$PWD/../ctp/$$CTP_FOLDER_PREFIX$$CTP_FOLDER_SUFFIX/thostmduserapi.lib
+
+# Copies the given files to the destination directory
+defineTest(copyToDestdir) {
+    files = $$1
+
+    for(FILE, files) {
+        DDIR = $$DESTDIR
+
+        # Replace slashes in paths with backslashes for Windows
+        win32:FILE ~= s,/,\\,g
+        win32:DDIR ~= s,/,\\,g
+
+        QMAKE_POST_LINK += $$QMAKE_COPY $$quote($$FILE) $$quote($$DDIR) $$escape_expand(\\n\\t)
+    }
+
+    export(QMAKE_POST_LINK)
+}
+
+win32 {
+    copyToDestdir($$PWD/../ctp/$$CTP_FOLDER_PREFIX$$CTP_FOLDER_SUFFIX/thostmduserapi.dll)
+    copyToDestdir($$PWD/../ctp/$$CTP_FOLDER_PREFIX$$CTP_FOLDER_SUFFIX/thosttraderapi.dll)
+}
