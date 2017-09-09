@@ -25,7 +25,7 @@ SOURCES += main.cpp \
     strategy/BigHit_strategy.cpp
 
 INCLUDEPATH += ../ ../common/
-DBUS_INTERFACES += ../interface/market_watcher.xml ../interface/trade_executer.xml
+DBUS_INTERFACES += ../interface/sinyee_replayer.xml ../interface/market_watcher.xml ../interface/trade_executer.xml
 
 HEADERS += ../config.h \
     ../common/market.h \

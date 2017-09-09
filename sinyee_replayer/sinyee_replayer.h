@@ -13,6 +13,7 @@ class SinYeeReplayer : public QObject
 
     QString sinYeeDataPath;
     QStringList replayList;
+    uint replayDelay;
 
 public:
     explicit SinYeeReplayer(const CONFIG_ITEM &config, QObject *parent = 0);
@@ -22,6 +23,7 @@ signals:
                        double askPrice1, int askVolume1, double bidPrice1, int bidVolume1);
 
 public slots:
+    void setInterval(const QString &delay);
     void startReplay(const QString &date);
     void startReplay(const QString &date, const QString &instrument);
     void startReplay(const QString &date, const QStringList &instruments);

@@ -27,6 +27,8 @@ SinYeeReplayer::SinYeeReplayer(const CONFIG_ITEM &config, QObject *parent) :
     settings->endGroup();
     replayList.removeDuplicates();
 
+    replayDelay = 3000;
+
     new Sinyee_replayerAdaptor(this);
     QDBusConnection dbus = QDBusConnection::sessionBus();
     dbus.registerObject(config.dbusObject, this);
@@ -82,6 +84,17 @@ QList<SinYeeTick> readTicks(QDataStream& tickStream, int num)
         tickList << tick;
     }
     return tickList;
+}
+
+/*!
+ * \brief SinYeeReplayer::setInterval
+ * 复盘指定tick间隔时间
+ *
+ */
+void SinYeeReplayer::setInterval(const QString &delay)
+{
+    //replayDelay = delay;
+    qDebug() << delay;
 }
 
 /*!
@@ -160,6 +173,9 @@ void SinYeeReplayer::startReplay(const QString &date, const QStringList &instrum
 
     for (const auto &item : tickPairList) {
         const int emitTime = item.second.time % 86400;
+        const SinYeeTick tick = item.second;
+        qDebug() << tick;
+
         emit newMarketData(item.first,
                            emitTime,
                            item.second.price,
@@ -168,5 +184,6 @@ void SinYeeReplayer::startReplay(const QString &date, const QStringList &instrum
                            item.second.askVolume,
                            item.second.bidPrice,
                            item.second.bidVolume);
+        QThread::msleep(replayDelay);
     }
 }
