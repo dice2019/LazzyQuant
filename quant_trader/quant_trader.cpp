@@ -113,6 +113,8 @@ void QuantTrader::loadTradeStrategySettings()
     qDebug() << groups.size() << "stragegs in all.";
 
     for (const QString& group : groups) {
+        qDebug() << "Loading Trade Strategy Setting..." << group;
+
         settings->beginGroup(group);
         QString strategy_name = settings->value("strategy").toString();
         QString instrument = settings->value("instrument").toString();
@@ -154,6 +156,8 @@ void QuantTrader::loadTradeStrategySettings()
         } else if (position.is_initialized() && position_map[instrument].is_initialized()) {
             position_map[instrument] = position_map[instrument].get() + position.get();
         }
+
+         qDebug() << "-------------------------------------";
     }
 }
 
@@ -253,10 +257,14 @@ QList<Bar>* QuantTrader::getBars(const QString &instrumentID, const QString &tim
         }
     }
 
-    const auto ktLastTime = barList.last().time;
-    for (int i = 0; i < collectedSize; i++) {
-        if (collectedBarList[i].time > ktLastTime && !invalidSet.contains(i)) {
-            barList.append(collectedBarList[i]);
+    if (barList.size() < 1) {
+        qWarning() << "Warning!" << instrumentID << time_frame_str << "no old bar list exist.";
+    } else {
+        const auto ktLastTime = barList.last().time;
+        for (int i = 0; i < collectedSize; i++) {
+            if (collectedBarList[i].time > ktLastTime && !invalidSet.contains(i)) {
+                barList.append(collectedBarList[i]);
+            }
         }
     }
 
@@ -332,7 +340,7 @@ AbstractIndicator* QuantTrader::registerIndicator(const QString &instrumentID, c
         QMetaClassInfo classInfo = metaObject->classInfo(i);
         if (QString(classInfo.name()).compare("parameter_number", Qt::CaseInsensitive) == 0) {
             parameter_number = QString(classInfo.value()).toInt();
-            qDebug() << parameter_number;
+            //qDebug() << parameter_number;
         }
     }
 
