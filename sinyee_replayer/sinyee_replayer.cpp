@@ -27,7 +27,8 @@ SinYeeReplayer::SinYeeReplayer(const CONFIG_ITEM &config, QObject *parent) :
     settings->endGroup();
     replayList.removeDuplicates();
 
-    replayDelay = 3000;
+    replayDateTime = QDateTime::currentDateTime();
+    replayDelay = 10;
 
     new Sinyee_replayerAdaptor(this);
     QDBusConnection dbus = QDBusConnection::sessionBus();
@@ -91,10 +92,10 @@ QList<SinYeeTick> readTicks(QDataStream& tickStream, int num)
  * 复盘指定tick间隔时间
  *
  */
-void SinYeeReplayer::setInterval(const QString &delay)
+void SinYeeReplayer::setInterval(const uint delay)
 {
-    //replayDelay = delay;
-    qDebug() << delay;
+    qDebug() << "set interval " << delay << "msec";
+    replayDelay = delay;
 }
 
 /*!
@@ -131,6 +132,7 @@ void SinYeeReplayer::startReplay(const QString &date, const QStringList &instrum
 {
     QList<QPair<QString, SinYeeTick>> tickPairList;
 
+    replayDateTime = QDateTime::fromString(date, "yyyyMMdd");
     for (const auto &instrument : instruments) {
         QString tickFilePath = sinYeeDataPath + "/" + instrument + "/" + instrument + "_" + date + ".tick";
         QFile tickFile(tickFilePath);
@@ -171,19 +173,28 @@ void SinYeeReplayer::startReplay(const QString &date, const QStringList &instrum
         }
     });
 
+    int oldTime = 0;
+    QDateTime tickTime = replayDateTime;
     for (const auto &item : tickPairList) {
         const int emitTime = item.second.time % 86400;
+        tickTime.setTime(QTime(0,0).addSecs(emitTime));
+        const QString instrumentID = item.first.toLower();
         const SinYeeTick tick = item.second;
-        qDebug() << tick;
+        qDebug() << instrumentID << "\n" << tick;
 
-        emit newMarketData(item.first,
-                           emitTime,
-                           item.second.price,
-                           item.second.volume,
-                           item.second.askPrice,
-                           item.second.askVolume,
-                           item.second.bidPrice,
-                           item.second.bidVolume);
-        QThread::msleep(replayDelay);
+        emit newMarketData(instrumentID,
+                           tickTime.toTime_t(),
+                           tick.price,
+                           tick.volume,
+                           tick.askPrice,
+                           tick.askVolume,
+                           tick.bidPrice,
+                           tick.bidVolume);
+
+        if (oldTime > 0 && oldTime != emitTime) {
+            QThread::msleep(replayDelay);
+        }
+
+        oldTime = emitTime;
     }
 }

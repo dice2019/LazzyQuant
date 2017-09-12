@@ -126,7 +126,7 @@ CtpExecuter::~CtpExecuter()
 
 void CtpExecuter::customEvent(QEvent *event)
 {
-    qDebug() << "customEvent: " << int(event->type());
+    qDebug() << DATE_TIME << "customEvent: " << event->type();
     switch (int(event->type())) {
     case FRONT_CONNECTED:
         if (useAuthenticate) {
@@ -175,7 +175,9 @@ void CtpExecuter::customEvent(QEvent *event)
             loggedIn = true;
             cacheReady = false;
 
-            qInfo() << DATE_TIME << "UserLogin OK! FrontID =" << uevent->rspUserLogin.FrontID << ", SessionID =" << uevent->rspUserLogin.SessionID;
+            qInfo() << DATE_TIME << "UserLogin OK!"
+                    << " FrontID =" << uint(uevent->rspUserLogin.FrontID)
+                    << ", SessionID =" << uint(uevent->rspUserLogin.SessionID);
 
             settlementInfoConfirm();
             QTimer::singleShot(1000, this, SLOT(updateOrderMap()));
@@ -232,6 +234,7 @@ void CtpExecuter::customEvent(QEvent *event)
     {
         auto *qievent = static_cast<RspQryInstrumentEvent*>(event);
         QStringList instrumentsWithAnd;
+        instrumentDataCache.clear();
         for (const auto &item : qievent->instrumentList) {
             instrumentDataCache[item.InstrumentID] = item;
             if (QString(item.InstrumentID).contains('&')) {
@@ -245,6 +248,7 @@ void CtpExecuter::customEvent(QEvent *event)
     case RSP_DEPTH_MARKET_DATA:
     {
         auto *devent = static_cast<DepthMarketDataEvent*>(event);
+        upperLowerLimitCache.clear();
         for (const auto &item : devent->depthMarketDataList) {
             const QString instrument = item.InstrumentID;
             upperLowerLimitCache[instrument] = qMakePair(item.UpperLimitPrice, item.LowerLimitPrice);
@@ -1380,8 +1384,6 @@ void CtpExecuter::updateAccountInfo()
 void CtpExecuter::updateInstrumentDataCache()
 {
     if (loggedIn) {
-        upperLowerLimitCache.clear();
-        instrumentDataCache.clear();
         qryInstrument();
         qryDepthMarketData();
         cacheReady = true;  //FIXME

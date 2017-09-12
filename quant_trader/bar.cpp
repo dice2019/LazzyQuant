@@ -1,4 +1,5 @@
 #include "bar.h"
+#include <QTime>
 
 Bar::Bar()
 {
@@ -89,12 +90,14 @@ QDataStream& operator<<(QDataStream& s, const Bar& bar)
 
 QDebug operator<<(QDebug dbg, const Bar &bar)
 {
-    dbg.nospace() <<   "time = " << bar.time
-                  << ", open = " << bar.open
-                  << ", high = " << bar.high
-                  << ", low = " << bar.low
-                  << ", close = " << bar.close
-                  << ", tick_volume = " << bar.tick_volume
-                  << ", volume = " << bar.volume;
+    QDateTime dt;
+    dt.setTime_t(bar.time);
+    dbg.nospace() << "time=" << dt.toString("yyyy-MM-dd hh:mm:ss")
+                  << ", open=" << bar.open
+                  << ", high=" << bar.high
+                  << ", low=" << bar.low
+                  << ", close=" << bar.close
+                  << ", tick_volume=" << bar.tick_volume
+                  << ", volume=" << bar.volume;
     return dbg.space();
 }

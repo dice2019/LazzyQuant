@@ -12,7 +12,7 @@
       <arg name="bidVolume1" type="i" direction="out"/>
     </signal>
     <method name="setInterval">
-      <arg name="delay" type="s" direction="in"/>
+      <arg name="delay" type="u" direction="in"/>
     </method>
     <method name="startReplay">
       <arg name="date" type="s" direction="in"/>

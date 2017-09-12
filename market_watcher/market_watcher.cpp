@@ -361,14 +361,18 @@ bool MarketWatcher::checkTradingTimes(const QString &instrumentID)
  */
 void MarketWatcher::processDepthMarketData(const CThostFtdcDepthMarketDataField& depthMarketDataField)
 {
+    QDateTime tickTime = QDateTime::currentDateTime();
     const QString instrumentID(depthMarketDataField.InstrumentID);
     QTime time = QTime::fromString(depthMarketDataField.UpdateTime, "hh:mm:ss");
 
+    tickTime.setTime(time);
+    // TODO: add milisecond tick support.
+    //tickTime.addMSecs(depthMarketDataField.UpdateMillisec);
+
     const auto &tradetime = currentTradingTimeMap[instrumentID];
     if (isWithinRange(time, tradetime.first, tradetime.second)) {
-        QTime emitTime = (time == tradetime.second) ? time.addSecs(-1) : time;
         emit newMarketData(instrumentID,
-                           QTime(0, 0).secsTo(emitTime),
+                           tickTime.toTime_t(),
                            depthMarketDataField.LastPrice,
                            depthMarketDataField.Volume,
                            depthMarketDataField.AskPrice1,
@@ -390,12 +394,13 @@ void MarketWatcher::processDepthMarketData(const CThostFtdcDepthMarketDataField&
  *
  * \param depthMarketDataField 深度市场数据
  */
-void MarketWatcher::emitNewMarketData(const CThostFtdcDepthMarketDataField& depthMarketDataField)
+void MarketWatcher::emitNewMarketData(QDateTime date, const CThostFtdcDepthMarketDataField& depthMarketDataField)
 {
     const QString instrumentID(depthMarketDataField.InstrumentID);
     const QTime time = QTime::fromString(depthMarketDataField.UpdateTime, "hh:mm:ss");
+    date.setTime(time);
     emit newMarketData(instrumentID,
-                       QTime(0, 0).secsTo(time),
+                       date.toTime_t(),
                        depthMarketDataField.LastPrice,
                        depthMarketDataField.Volume,
                        depthMarketDataField.AskPrice1,
@@ -525,6 +530,8 @@ void MarketWatcher::startReplay(const QString &date, bool realSpeed)
     Q_UNUSED(realSpeed) // TODO realSpeed = true
 
     qDebug() << "Start replaying" << date;
+    replayDate = date;
+    QDateTime day = QDateTime::fromString(replayDate, "yyyyMMdd");
     QList<CThostFtdcDepthMarketDataField> mdList;
 
     for (const auto &instrumentID : subscribeSet) {
@@ -561,7 +568,7 @@ void MarketWatcher::startReplay(const QString &date, bool realSpeed)
     });
 
     for (const auto &md : mdList) {
-        emitNewMarketData(md);
+        emitNewMarketData(day, md);
     }
 }
 

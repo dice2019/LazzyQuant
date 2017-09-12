@@ -49,6 +49,10 @@ Bar* BarCollector::getCurrentBar(const QString &time_frame_str)
 {
     int time_frame_value = BarCollector::staticMetaObject.enumerator(timeFrameEnumIdx).keyToValue(time_frame_str.trimmed().toLatin1().data());
     TimeFrame time_frame = static_cast<BarCollector::TimeFrame>(time_frame_value);
+    if(!current_bar_map.contains(time_frame)) {
+        current_bar_map.insert(time_frame, Bar());
+    }
+
     return &current_bar_map[time_frame];
 }
 
@@ -79,9 +83,9 @@ static const auto g_time_table = []() -> QMap<BarCollector::TimeFrame, uint> {
 bool BarCollector::onMarketData(uint time, double lastPrice, int volume)
 {
     const bool isNewTick = (volume == lastVolume);
-    QDateTime now = QDateTime::currentDateTime();
-    now.setTime(QTime(0, 0).addSecs(time));    // 当前的日期(YYMMDD)加上交易所的时间(HHMMSS)
-    const auto currentTime = now.toTime_t();
+    QDateTime now;
+    now.setTime_t(time);
+    const auto currentTime = time;
 
     for (const auto key : qAsConst(keys)) {
         Bar & bar = current_bar_map[key];
@@ -96,7 +100,7 @@ bool BarCollector::onMarketData(uint time, double lastPrice, int volume)
             if (bar.tick_volume > 0) {
                 bar_list_map[key].append(bar);
                 emit collectedBar(instrument, key, bar);
-                qDebug() << instrument << ": " << bar;
+                qDebug() << instrument << ":" << bar;
                 bar.init();
             }
         }

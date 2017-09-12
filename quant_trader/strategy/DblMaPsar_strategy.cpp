@@ -72,4 +72,12 @@ void DblMaPsarStrategy::onNewBar()
             position = -1;
         }
     }
+
+    /*
+    qDebug() << "DblMaPsarStrategy onNewBar"
+             << "fast[1]" << fast_ma_buf[1] << "slow[1]" << slow_ma_buf[1]
+             << "fast[2]" << fast_ma_buf[2] << "slow[2]" << slow_ma_buf[2]
+             << "position" << position.get();
+     */
+
 }

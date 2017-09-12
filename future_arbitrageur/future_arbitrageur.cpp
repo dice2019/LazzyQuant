@@ -26,6 +26,7 @@ void FutureArbitrageur::setupStrategies()
     const auto strategyIDs = settings->childGroups();
 
     QStringList allInstruments;
+    qDebug() << "strategyIDs:" << strategyIDs;
     for (const auto &strategyID : strategyIDs) {
         settings->beginGroup(strategyID);
 

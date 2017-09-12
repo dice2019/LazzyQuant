@@ -62,7 +62,7 @@ protected:
     void subscribe();
     bool checkTradingTimes(const QString &instrumentID);
     void processDepthMarketData(const CThostFtdcDepthMarketDataField& depthMarketDataField);
-    void emitNewMarketData(const CThostFtdcDepthMarketDataField& depthMarketDataField);
+    void emitNewMarketData(QDateTime date, const CThostFtdcDepthMarketDataField& depthMarketDataField);
 
 signals:
     void newMarketData(const QString& instrumentID, uint time, double lastPrice, int volume,

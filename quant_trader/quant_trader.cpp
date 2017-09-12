@@ -444,7 +444,7 @@ void QuantTrader::timesUp(int index)
  * 处理市场数据, 如果有新的成交则计算相关策略
  * 统计相关策略给出的仓位, 如果与旧数值不同则发送给执行模块
  *
- * \param instrumentID 合约代码
+ * \param instrumentID 合约代码DefaultLocaleLongDate
  * \param time 时间
  * \param lastPrice 最新成交价
  * \param volume 成交量
@@ -457,6 +457,7 @@ void QuantTrader::onMarketData(const QString& instrumentID, uint time, double la
     Q_UNUSED(bidPrice1)
     Q_UNUSED(bidVolume1)
 
+    //qDebug() << instrumentID << time;
     BarCollector *collector = collector_map.value(instrumentID, nullptr);
     bool isNewTick = false;
     if (collector != nullptr) {

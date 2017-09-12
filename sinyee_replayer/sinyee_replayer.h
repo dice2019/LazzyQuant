@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QDateTime>
 
 struct CONFIG_ITEM;
 
@@ -13,6 +14,7 @@ class SinYeeReplayer : public QObject
 
     QString sinYeeDataPath;
     QStringList replayList;
+    QDateTime replayDateTime;
     uint replayDelay;
 
 public:
@@ -23,7 +25,7 @@ signals:
                        double askPrice1, int askVolume1, double bidPrice1, int bidVolume1);
 
 public slots:
-    void setInterval(const QString &delay);
+    void setInterval(const uint delay);
     void startReplay(const QString &date);
     void startReplay(const QString &date, const QString &instrument);
     void startReplay(const QString &date, const QStringList &instruments);
